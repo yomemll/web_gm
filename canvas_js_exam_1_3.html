@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>web Animation(canvas_js_css)[1단원]</title>
+    <style>
+         body {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            font-family: sans-serif;
+         }
+
+         #canvas {
+            background: #dcd7c9;
+            display: block;
+            margin: 0 auto;
+         }
+
+         /* PC에서는 600x600 고정 */
+         @media (min-width: 769px) {
+            #canvas {
+                width: 600px;
+                height: 600px;
+            }
+         }
+
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <script>
+        const drawingBoard=document.getElementById('canvas');
+        const drawingPen=drawingboard.getcontext('2d');
+
+        //캔버스 크기를 css와 맞춰줌 (중요!)
+        drawingBoard.width=drawingBoard.clientWidth;
+        drawingBoard.height=drawingBoard.clientHeight;
+
+        let x = (drawingBoard.width - 10) / 2;
+        let y = (drawingBoard.height - 10) /2;
+
+        const moveAmount = 5;
+
+        function moveRight() {
+            x = x + moveAmount;
+        }
+
+        function moveleft() {
+            x = x - moveAmount;
+        }
+
+        function moveDown() {
+            y = y + moveAmount;
+        }
+
+        function moveUp() {
+            y = y - moveAmount;
+        }
+
+        function drawHero() {
+            drawingPen.fillstyle = 'black';
+            drawingPen.fillrect(x, y, 10, 10)
+        }
+
+        setinterval(draw, 16);//60fps
+
+        //pc방향키 조작
+        document.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'arrowLeft' : moveleft(); break;
+                case 'arrowRight' : moveRight(); break;
+                case 'arrowUp' : moveUp(); break;
+                case 'arrowDown' : moveDown(); break;
+            }
+        });
+
+    </script>
+</body>
+
+</html>
