@@ -71,13 +71,6 @@
     <div id="myDIV"><button id="but">재시도</button></div>
 
     <script>
-        function resizeCanvas() {
-            drawingBoard.width = drawingBoard.clientWidth;
-            drawingBoard.height = drawingBoard.clientHeight;
-        }
-
-        resizeCanvas(); // 최초 실행
-        window.addEventListener("resize", resizeCanvas); // 화면 크기 바뀔 때도 실행
 
         const butt = document.getElementById(id="but");//*초기화
         butt.addEventListener('click', () => {
