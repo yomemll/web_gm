@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>web Animation(canvas_js_css)[5단원]</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      font-family: sans-serif;
+    }
+
+    #canvas {
+      background: #dcd7c9;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .pc-guide {
+      display: none;
+      margin-top: 10px;
+      font-size: 16px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    /* PC용 */
+    @media (min-width: 769px) {
+      #canvas {
+        width: 600px;
+        height: 600px;
+      }
+      .pc-guide {
+        display: block;
+      }
+    }
+
+    .controls {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .controls button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 5px;
+    }
+
+    @media (max-width: 768px) {
+      #canvas {
+        width: 100vw;
+        height: 100vw;
+      }
+      .controls {
+        display: block;
+      }
+      .pc-guide {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="data"></div>
+  <div id="red"></div>
+  <div id="win"></div>
+  <div id="myDIV" style="display:none;"><button id="but">재시도</button></div>
+
+  <canvas id="canvas"></canvas>
+
+  <div class="controls">
+    <button id="leftBtn">←</button>
+    <button id="rightBtn">→</button>
+    <button id="upBtn">↑</button>
+    <button id="downBtn">↓</button>
+  </div>
+
+  <div class="pc-guide">
+    pc에서 접속했습니다. 방향키로 이동하세요.<br>
+    스마트폰 접속 시 보이는 버튼으로 이동하세요
+  </div>
+
+  <script>
+    const drawingBoard = document.getElementById('canvas');
+    const drawingPen = drawingBoard.getContext('2d');
+    const drawingpen2 = drawingBoard.getContext('2d');
+
+    // ✅ 캔버스 사이즈 조정 함수 (모바일 대응 핵심)
+    function resizeCanvas() {
+      drawingBoard.width = drawingBoard.clientWidth;
+      drawingBoard.height = drawingBoard.clientHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    // ✅ 초기값 설정
+    let x = drawingBoard.width - 30;
+    let y = drawingBoard.height - 30;
+    const moveAmount = 10;
+
+    function moveRight() { x += moveAmount; }
+    function moveLeft()  { x -= moveAmount; }
+    function moveDown()  { y += moveAmount; }
+    function moveUp()    { y -= moveAmount; }
+
+    function drawHero() {
+      drawingPen.fillStyle = 'black';
+      drawingPen.fillRect(x, y, 10, 10);
+    }
+
+    // 적 좌표
+    let xx = [], yy = [];
+    for (let i = 1; i <= 5; i++) {
+      xx[i] = Math.random() * (drawingBoard.width - 20);
+      yy[i] = Math.random() * (drawingBoard.height - 20);
+    }
+
+    function drawEnemy(i) {
+      drawingpen2.fillStyle = 'red';
+      drawingpen2.fillRect(xx[i], yy[i], 20, 20);
+    }
+
+    function bound() {
+      x = Math.max(0, Math.min(x, drawingBoard.width - 10));
+      y = Math.max(0, Math.min(y, drawingBoard.height - 10));
+    }
+
+    let lock = [], ll = [];
+    for (let i = 1; i <= 5; i++) {
+      lock[i] = 0;
+      ll[i] = 1;
+    }
+
+    let herox, heroy;
+    let enemy1x = [], enemy1y = [];
+    let red = 5, l = 0, lll = 0;
+
+    function collision1() {
+      herox = x + 10;
+      heroy = y + 10;
+      for (let i = 1; i <= 5; i++) {
+        enemy1x[i] = xx[i] + 20;
+        enemy1y[i] = yy[i] + 20;
+        if (
+          herox >= xx[i] &&
+          heroy >= yy[i] &&
+          x <= enemy1x[i] &&
+          y <= enemy1y[i]
+        ) {
+          if (ll[i] === 1) {
+            lock[i] = 1;
+            l = 1;
+            redm();
+            l = 0;
+            ll[i] = 0;
+          }
+        }
+      }
+    }
+
+    function redm() {
+      if (l == 1) red--;
+    }
+
+    function draw() {
+      drawingPen.clearRect(0, 0, drawingBoard.width, drawingBoard.height);
+      drawHero();
+      bound();
+      for (let i = 1; i <= 5; i++) {
+        if (lock[i] == 0) drawEnemy(i);
+      }
+      collision1();
+    }
+
+    setInterval(draw, 16); // 60fps
+
+    // 타이머 & 승리 판정
+    let sc = 0, mn = 0;
+    setInterval(() => {
+      if (lll === 0) {
+        sc++;
+        if (sc === 60) {
+          mn++;
+          sc = 0;
+        }
+        document.getElementById("data").innerHTML = mn + ":" + sc + "초";
+        document.getElementById("red").innerHTML = "red no " + red;
+      }
+    }, 600);
+
+    setInterval(() => {
+      if (red === 0) {
+        lll = 1;
+        document.getElementById("red").innerHTML = "red on 0";
+        document.getElementById("win").innerHTML = "미션해결 시간 " + mn + ":" + sc + "초";
+        document.getElementById("myDIV").style.display = 'block';
+      } else {
+        document.getElementById("myDIV").style.display = 'none';
+      }
+    }, 16);
+
+    // 재시도 버튼
+    document.getElementById("but").addEventListener('click', () => {
+      mn = 0; sc = 0; red = 5; lll = 0;
+      x = drawingBoard.width - 30;
+      y = drawingBoard.height - 30;
+      document.getElementById("win").style.display = 'none';
+      for (let i = 1; i <= 5; i++) {
+        lock[i] = 0;
+        ll[i] = 1;
+        xx[i] = Math.random() * (drawingBoard.width - 20);
+        yy[i] = Math.random() * (drawingBoard.height - 20);
+      }
+    });
+
+    // PC 키보드
+    document.addEventListener('keydown', (e) => {
+      switch (e.key) {
+        case 'ArrowLeft': moveLeft(); break;
+        case 'ArrowRight': moveRight(); break;
+        case 'ArrowUp': moveUp(); break;
+        case 'ArrowDown': moveDown(); break;
+      }
+    });
+
+    // 모바일 버튼
+    document.getElementById('leftBtn').addEventListener('click', moveLeft);
+    document.getElementById('rightBtn').addEventListener('click', moveRight);
+    document.getElementById('upBtn').addEventListener('click', moveUp);
+    document.getElementById('downBtn').addEventListener('click', moveDown);
+  </script>
+</body>
+</html>
