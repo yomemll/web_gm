@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">  <!-- 기본언어 : 영어 -->
+<head>
+  <meta charset="UTF-8" /> <!-- 페이지 언어 인코딩 형식 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <!-- 화면크기에 따라 보여지는 크기 맞추기 -->
+  <title>Web Animation(canvas_js_css)[1단원-3]</title>
+  <style>
+    /* 페이지 전체 설정 */
+    body {
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      font-family: sans-serif;
+    }
+    /* 애니메이션 화면 설정 */
+    #canvas {
+      background: #DCD7C9;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* ★1_5 : PC 안내 문구 기본은 숨김 */
+    .pc-guide {
+        display: none;
+        margin-top: 10px;  
+        font-size: 16px; 
+        color: #333; 
+        font-weight: bold; 
+    }      
+
+    /* PC에서는 600x600 고정 */
+    @media (min-width: 769px) {
+        #canvas {
+            width: 600px;
+            height: 600px;
+        }
+
+        .pc-guide {
+            display: block;  
+        }      
+    }  
+
+    /* ★1_5 : 버튼들을 감싸는 div 숨기기 (PC에서는 안 보이게하고 스마트폰에서 접속이 보임) */
+    .controls {
+        display: none; 
+        margin-top: 10px; 
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #startBtn {
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #4CAF50;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        padding: 30px 60px;
+        border-radius: 10px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        transition: all 0.25 ease;
+        user-select: none;
+    }
+
+    #startBtn:hover {
+        background: #45a049;
+        transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    #startBtn:active {
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    .messageBox {
+        display: none;
+        position: absolute;
+        top: 30%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        border: 2px solid #333;
+        padding: 20px;
+        z-index: 10;
+    }
+
+    .controls .row {
+        display: flex;
+        justify-content: center;
+    }
+
+    /* ★1_5 : 스마트폰에서 보여질 버튼 모양 설정 */
+    .controls button {
+        font-size: 18px; 
+        padding: 10px 20px;
+        margin: 5px;
+        min-width: 60px;
+        border-radius: 10px;
+        border: none;
+        background-color: #333;
+        color: white;
+        touch-action: none;
+    }
+
+    .controls button:active {
+        background-color: #555;
+    }
+
+    /* ★1_5 : 화면이 작을 때 (스마트폰 등에서 보인다면 아래 코드동작)
+    */
+    @media (max-width: 768px) {
+        #canvas {
+            width: 100vw;
+            height: 100vw; 
+        }
+        .controls {
+            display: block;
+        }
+        .pc-guide {
+            display: none; 
+        }         
+    }
+  </style>
+</head>
+<body>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyCTLB290PnBy8eSYo4rxctoWT_E2K6WMMY",
+            authDomain: "my-webgame-project1-277ef.firebaseapp.com",
+            projectId: "my-webgame-project1-277ef",
+            storageBucket: "my-webgame-project1-277ef.firebasestorage.app",
+            messagingSenderId: "590401638187",
+            appId: "1:590401638187:web:8aba50fcd15ac818d7ff6e",
+            measurementId: "G-HR5WZ9Z2PQ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+
+    <!-- 애니메이션 화면 만들기 -->
+    <canvas id="canvas"></canvas>
+
+    <div id="startBtn">Start</div>
+
+    <div class="messageBox" id="msgBox">
+        <div id="msgText"></div>
+        <input type="text" id="userId" placeholder="(영어+숫자) 5~15자이네">
+        <br>
+        <button id="savebtn">저장</button>
+        <button id="cancelbtn">취소</button>
+    </div>
+
+    <!-- ★1_5 : 애니메이션 화면 만들기 : 스마트폰에서 접속 할 때만 controls이 보이게됨-->
+    <div class="controls">
+        <div class="row">
+            <button id="upBtn">↑</button>
+        </div>
+        <div class="row">
+            <button id="leftBtn">←</button>
+            <button id="rightBtn">→</button>
+            <button id="downBtn">↓</button>
+        </div>
+    </div>
+
+    <!-- ★1_5 : PC 전용 안내 문구 -->
+    <div class="pc-guide">
+        PC에서 접속했습니다. 방향키로 이동하세요.<br>
+        스마트폰은 접속 시 보이는 버튼으로 이동하세요.
+    </div>
+
+    <script type="module">
+        import { containsSwearWord } from "https://cdn.jsdelivr.net/gh/bc-develop2000/swear_words@main/swear_words.js"
+        
+        window.containsSwearWord = containsSwearWord;
+
+    </script>
+
+    <script>
+        // 캔버스 요소 JS 변수만들기
+        const drawingBoard = document.getElementById('canvas');
+        // 캔버스에 2D그림을 그리는 도구 변수만들기
+        const drawingPen = drawingBoard.getContext('2d');
+
+        // 캔버스 크기를 CSS와 맞춰줌 (중요!)
+        drawingBoard.width = drawingBoard.clientWidth;
+        drawingBoard.height = drawingBoard.clientHeight;
+
+        // 화면 가운데 위치
+        let x = (drawingBoard.width - 10) / 2;
+        let y = (drawingBoard.height - 10) / 2;
+
+        const redbox = { x: 550, y: 550, size: 50 };
+
+        let startTime;
+        let gameStarted = false;
+        let elapsedTime = 0;
+        let stopTime = null;
+
+        function drawTimer() {
+            drawingPen.fillStyle = 'blue';
+            drawingPen.font = '20px sans=serif';
+
+            if (gameStarted) {
+                const elapsedTime = (Date.now() - startTime) / 1000;
+                drawingPen.fillText(`시간: ${elapsedTime.toFixed(2)}초`, 10, 40);
+            } else if (stopTime > 0) {
+                drawingPen.fillText(`시간: ${stopTime.toFixed(2)}초`, 10, 40);
+            }
+        }
+
+        const msgBox = document.getElementById('msgBox');
+        const msgText = document.getElementById('msgText');
+        const userIdInput = document.getElementById('userId');
+        const savebtn = document.getElementById('savebtn');
+        const cancelbtn = document.getElementById('cancelbtn');
+        const startBtn = document.getElementById('startBtn');
+        
+        function drawRedBox() {
+            drawingPen.fillStyle = 'red';
+            drawingPen.fillRect(redbox.x,redbox.y,redbox.size,redbox.size);
+        }
+
+        function checkCollision() {
+            if (gameStarted && (x + 10) > redbox.x && x < (redbox.x + redbox.size) && (y + 10) > redbox.y && y < (redbox.y + redbox.size)) {
+                gameStarted = false;
+                stopTime = (Date.now() - startTime) / 1000;
+                showMessage(`충돌! 경과 시간: ${stopTime.toFixed(2)}초\n저장 아이디((영어+숫자) 5~15자이내)를 입력하세요`);
+                return true;
+            }
+            return false;
+        }
+
+        function showMessage(text) {
+            msgText.innerText = text;
+            msgBox.style.display = 'block';
+            userIdInput.value = '';
+            userIdInput.focus();
+        }
+
+        savebtn.addEventListener('click', async() => {
+            const val = userIdInput.value.trim();
+            if (typeof window.containsSwearWord !== 'function') {
+                alert('욕설 필터 모듈을 불러오지 못했습니다 (ESM improt 확인)');
+                console.error('[swear] containsSwearWord not ready');
+                return;
+            }
+            const re = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z0-9]{5,15}$/;
+            if (containsSwearWord(val,"eng")) {
+                alert('사용할 수 없는 단어가 포함되어 있습니다.');
+                msgBox.style.display = 'none';
+                userIdInput.focus();
+                resetGame();
+                return;
+            }
+            if (!re.test(val)) {
+                alert('아이디는 영어와 숫자를 반드시 포함한 5~15자여야 합니다.');
+                msgBox.style.display = 'none';
+                resetGame();
+                return;
+            }
+            alert(`입력한 아이디는 ${val}입니다`);
+
+            const record = Number.isFinite(stoptime) ? Number(startTime.toFixed(2)) : 0;
+        try {
+            const db = window.__db;
+            if (!db) {
+                alert("DB초기화 실패: firebase설정을 확인하세요");
+                return;
+            }
+            const { collection, addDoc, serverTimestamp } = await import(
+                "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js"
+            );
+            await addDoc(collection(db, "scores"), {
+                userId: val,
+                time: record,
+                createdAt: serverTimeStamp()
+            });
+            alert(`저장되었습니다!\nID: ${val}\n기록: ${record}초`);
+            msgBox.style.display = 'none';
+        } catch (err) {
+            console.error(err);
+        }
+
+        msgBox.style.display = 'none';
+        resetGame();
+        });
+
+        cancelbtn.addEventListener('click', () => {
+            msgBox.style.display = 'none';
+            resetGame();
+        });
+
+        startBtn.addEventListener('click', () => {
+            gameStarted = true;
+            startTime = Date.now();
+            startBtn.style.display = 'none';
+        });
+
+        function resetGame() {
+            gameStarted = false;
+            startTime = null;
+            stopTime = null;
+            startBtn.style.display = 'block';
+            x = (drawingBoard.width - 10) / 2;
+            y = (drawingBoard.height - 10) / 2;
+        }
+
+        // 주인공 이동속도
+        const moveAmount = 5;
+
+        // 주인공 이동함수
+        function moveRight() {
+        x = x + moveAmount;
+        }
+
+        function moveLeft() {
+        x = x - moveAmount;
+        }
+
+        function moveDown() {
+        y = y + moveAmount;
+        }
+
+        function moveUp() {
+        y = y - moveAmount;
+        }
+
+        //★1_4 : 주인공 이동제한
+        function move_limit(){
+        if (x < 10) {
+            x = 10;
+        }
+        }
+        function move_limit2(){
+        if (x > 580) {
+            x = 580;
+        }
+        }
+        function move_limit3(){
+        if (y < 10) {
+            y = 10;
+        }
+        }
+        function move_limit4(){
+        if (y > 580) {
+            y = 580;
+        }
+        }
+
+        //캔버스 왼쪽 상단에 텍스트 출력함수
+        function drawCoordinate() {
+        drawingPen.fillStyle = 'black';
+        drawingPen.font = '10px sans-serif';
+        drawingPen.fillText(`x: ${x}  y: ${y}`, 10, 20);
+        }
+
+        //주인공출력함수
+        function drawHero() {
+        drawingPen.fillStyle = 'black';
+        drawingPen.fillRect(x, y, 10, 10);
+        }
+
+        const keys = {
+            ArrowLeft : false,
+            ArrowRight : false,
+            ArrowUp : false,
+            ArrowDown : false,
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = true;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (keys.hasOwnProperty(e.key)) {
+                keys[e.key] = false;
+            }
+        });
+
+        // 화면에 출력하기
+        function draw() {
+        drawingPen.fillText(`x: ${x}  y: ${y}`, 10, 20);
+        drawingPen.clearRect(0, 0, canvas.width, canvas.height); //화면지우기
+        drawHero(); //주인공출력함수호출
+
+        move_limit();
+        move_limit2();
+        move_limit3();
+        move_limit4();  //주인공 이동제한 함수호출
+        drawCoordinate();  //텍스트 출력 함수호출
+
+        drawRedBox();
+        drawTimer();
+
+        checkCollision();
+
+        if (gameStarted && stopTime === null) {
+        if(keys.ArrowLeft) moveLeft();
+        if(keys.ArrowRight) moveRight();
+        if(keys.ArrowUp) moveUp();
+        if(keys.ArrowDown) moveDown();
+        }         
+        }
+
+        setInterval(draw, 16); // 60FPS
+
+        const setBtnHold = (key, isdown) => {
+            keys[key] = isdown;
+        };
+        
+        const bindButton = (id, key) => {
+            const btn = document.getElementById(id);
+            btn.addEventListener('touchstart', () => setBtnHold(key, true));
+            btn.addEventListener('touchend', () => setBtnHold(key, false));
+            btn.addEventListener('mousedown', () => setBtnHold(key, true));
+            btn.addEventListener('mouseup', () => setBtnHold(key, false));
+            btn.addEventListener('mouseleave', () => setBtnHold(key, false));
+        };
+
+        bindButton("leftBtn", "ArrowLeft");
+        bindButton("rightBtn", "ArrowRight");
+        bindButton("upBtn", "ArrowUp");
+        bindButton("downBtn", "ArrowDown");
+    </script>
+</body>
+</html>
