@@ -149,6 +149,7 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
+        window.__db = getFirestore(app);
     </script>
 
     <!-- 애니메이션 화면 만들기 -->
@@ -274,7 +275,7 @@
             }
             alert(`입력한 아이디는 ${val}입니다`);
 
-            const record = Number.isFinite(stoptime) ? Number(startTime.toFixed(2)) : 0;
+            const record = Number.isFinite(stopTime) ? Number(startTime.toFixed(2)) : 0;
         try {
             const db = window.__db;
             if (!db) {
@@ -287,7 +288,7 @@
             await addDoc(collection(db, "scores"), {
                 userId: val,
                 time: record,
-                createdAt: serverTimeStamp()
+                createdAt: serverTimestamp()
             });
             alert(`저장되었습니다!\nID: ${val}\n기록: ${record}초`);
             msgBox.style.display = 'none';
