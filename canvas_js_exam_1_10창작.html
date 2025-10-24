@@ -173,6 +173,7 @@
         }
             resetGame();
         })
+
         cancelbtn.addEventListener('click', () => {
             alert("취소하였습니다")
             resetGame();
@@ -201,8 +202,6 @@
             if (red==0) {
                 lll=1
                 randomStart();
-                String=mn
-                String=sc
                 document.getElementById("red").innerHTML="red on 0";
                 document.getElementById("win").innerHTML="미션해결 시간= "  + mn + "분 : " + sc + "초";
                 bDisplay=0;
