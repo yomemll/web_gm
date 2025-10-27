@@ -285,9 +285,10 @@
             const { collection, addDoc, serverTimestamp } = await import(
                 "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js"
             );
+            const timeInSec = record > 1000 ? record / 1000 : record;
             await addDoc(collection(db, "scores"), {
                 userId: val,
-                time: record,
+                time: timeInSec,
                 createdAt: serverTimestamp()
             });
             alert(`저장되었습니다!\nID: ${val}\n기록: ${record}초`);
