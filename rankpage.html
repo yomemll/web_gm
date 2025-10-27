@@ -185,7 +185,7 @@
     <script src="https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore-compat.js"></script>
 
     <script>
-        var firedaseconfig = {
+        var firebaseconfig = {
             apiKey: "AIzaSyCTLB290PnBy8eSYo4rxctoWT_E2K6WMMY",
             authDomain: "my-webgame-project1-277ef.firebaseapp.com",
             projectId: "my-webgame-project1-277ef",
@@ -195,7 +195,7 @@
         }
 
         firebase.initializeApp(firebaseconfig);
-        var db = firebase.firebasestore();
+        var db = firebase.firestore()
 
         function getQueryParam(name) {
             var Query = location.search.replace(/^\?/, '');
@@ -213,7 +213,7 @@
 
         function to2(n) {
             if (typeof n !=='number' || !isFinite(n)) return'';
-            return (math.round(n * 180) / 100).toFixed(2);
+            return (Math.round(n * 180) / 100).toFixed(2);
         }
 
         function fmtDate(ts) {
@@ -221,7 +221,7 @@
             var d = ts.toDate();
 
             var y = d.getFullYear();
-            var m = d.getMonth();
+            var m = d.getMonth() + 1;
             var day = d.getDate();
             var hh = d.getHours();
             var mm = d.getMinutes();
@@ -236,7 +236,7 @@
 
         function escapeHtml(s) {
             s = String(s);
-            s = s.replace(/&/g,'&amp;').replace(/</g,'%lt;').replace(/>/g,'%gt;');
+            s = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
             s = s.replace(/"/g,'&quot;').replace(/'/g, '&#39;');
             return s;
         }
@@ -260,7 +260,7 @@
                     var time = Number(data.time);
                     var createdAt = data.createdAt || null;
 
-                    rnak = rank + 1;
+                    rank = rank + 1;
 
                     var medal = '';
                     if (rank === 1) {medal = '🥇 '; }
@@ -285,9 +285,9 @@
                     
                     html += '<tr class="' + (isHL ? 'hl ' : '') + rowClass + '">';
                     html +=     '<td class="rank ' + rankClass + '">' + medal + rnak + '</td>';
-                    heml +=     '<td>' + escapeHtml(userId) + '</td>';
-                    heml +=     '<td>' + to2(time) + '</td>';
-                    heml +=     '<td>' + fmtDate(createdAt) + '</td>';
+                    html +=     '<td>' + escapeHtml(userId) + '</td>';
+                    html +=     '<td>' + to2(time) + '</td>';
+                    html +=     '<td>' + fmtDate(createdAt) + '</td>';
                     html += '</tr>';
                 });
                 
@@ -307,7 +307,7 @@
             loadRanking();
         };
         document.getElementById('btnBack').onclick = function() {
-            Location.href = "canvas_js_exam_1_9.html";
+            location.href = "canvas_js_exam_1_9.html";
         };
         loadRanking();
     </script>
