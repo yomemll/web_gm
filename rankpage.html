@@ -212,8 +212,8 @@
         var lastTime = getQueryParam('lastTime');
 
         function to2(n) {
-            if (typeof n !=='number' || !isFinite(n)) return'';
-            return (Math.round(n * 180) / 100).toFixed(2);
+            if (typeof n !== 'number' || !isFinite(n)) return '';
+            return n.toFixed(2);
         }
 
         function fmtDate(ts) {
@@ -257,7 +257,7 @@
                 snapshot.forEach(function(doc) {
                     var data = doc.data() || {};
                     var userId = data.userId || '';
-                    var time = Number(data.time);
+                    var time = Number(data.time) / 1000;  // ← 밀리초를 초로 변환
                     var createdAt = data.createdAt || null;
 
                     rank = rank + 1;
