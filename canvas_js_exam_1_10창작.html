@@ -69,6 +69,41 @@
             }
          }
 
+         .rank-btn {
+            margin: 15px auto 30px;
+            padding: 15px 20px;
+            background: #2d6cdf;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+         }
+
+         .rank-btn:active {
+            transform: translateY(2px);
+         }
+
+         .game-title {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 900;
+            color: #1b3ea3;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-top: 16px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            font-family: 'Trebuchet MS', 'Noto Sans KR', sans-serif ;
+         }
+
+         @media (max-width:768px) {
+            .game-title{
+                font-size: 28px;
+            }
+         }
+
          #myDIV {
             position: absolute;
             top: 30%;
@@ -82,6 +117,9 @@
     </style>
 </head>
 <body>
+
+    <div class="gmae-title">⏱ 스퀘어 타임런</div>
+    <button class="rank-btn" id="btnRank">랭킹보기</button>
 
     <script type="module">
         // Import the functions you need from the SDKs you need
@@ -608,6 +646,10 @@
         bindButton("rightBtn", "ArrowRight");
         bindButton("upBtn", "ArrowUp");
         bindButton("downBtn", "ArrowDown");
+
+        document.getElementById('btnRank').addEventListener('click', function() {
+            location.href = "rankpage.html"
+        });
 
     </script>
 </body>
