@@ -143,6 +143,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         window.__db = db;
+
+        disableNetwork(db);
     </script>
 
     <div id="data"></div>
