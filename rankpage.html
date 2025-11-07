@@ -257,7 +257,7 @@
                 snapshot.forEach(function(doc) {
                     var data = doc.data() || {};
                     var userId = data.userId || '';
-                    var time = Number(data.time) / 1000;  // ← 밀리초를 초로 변환
+                    var time = Number(data.time);
                     var createdAt = data.createdAt || null;
 
                     rank = rank + 1;
